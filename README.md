@@ -118,5 +118,6 @@ To fully reproduce this analysis:
 
 ## 👤 Author
 
-Data analysis project developed by Camilo Rojas
-Feel free to reach out or connect on [![LinkedIn](#)](www.linkedin.com/in/camilo-andres-rojas-rojas)
+Data analysis project developed by Camilo Rojas.
+
+Feel free to reach out or connect on [LinkedIn](https://www.linkedin.com/in/camilo-andres-rojas-rojas)
