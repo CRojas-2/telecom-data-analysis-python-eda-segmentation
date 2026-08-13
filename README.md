@@ -1,123 +1,93 @@
-# 📡 EDA & Customer Segmentation — ConnectaTel
+# RappiPlus: From Data to Business Decisions
 
-> End-to-end exploratory data analysis of a Latin American telecom company. Covers data cleaning, outlier detection, customer segmentation by usage and age, and actionable business insights using Python and Pandas.
+**An end-to-end data analytics project** — from raw data validation to an executive BI dashboard — built to answer one question: *is the business performing the way it needs to, and where should it act next?*
 
----
+![Python](https://img.shields.io/badge/Python-3.9-blue?logo=python&logoColor=white)
+![SQL](https://img.shields.io/badge/SQL-PostgreSQL-336791?logo=postgresql&logoColor=white)
+![pandas](https://img.shields.io/badge/pandas-data%20wrangling-150458?logo=pandas&logoColor=white)
+![statsmodels](https://img.shields.io/badge/statsmodels-hypothesis%20testing-orange)
+![Power BI](https://img.shields.io/badge/Power%20BI-dashboard-F2C811?logo=powerbi&logoColor=black)
 
-## 🎯 Project Objective
+## 📌 Project Overview
 
-Analyze the behavioral patterns of ConnectaTel's customer base to identify usage segments, detect data quality issues, and translate findings into actionable commercial recommendations — including plan restructuring and targeted retention strategies.
+RappiPlus is a subscription-based delivery service operating across three countries (Colombia, Mexico, Argentina) and three acquisition channels (organic, paid search, social). This project evaluates its performance end-to-end — data reliability, profitability, user conversion, retention, and the impact of a product experiment — and packages the results into a decision-ready dashboard for stakeholders.
 
----
+The project applies the full analytics stack expected of a data analyst: Python for data cleaning and exploratory analysis, SQL for behavioral analytics on a relational database, inferential statistics for experimentation, and Power BI for stakeholder communication.
 
-## 📁 Datasets
+## 🗂️ Data Sources
 
-Three CSV files were used, all containing data up to 2024:
+- `rappiplus_orders_raw.csv` — order-level transactions: pricing, discounts, revenue
+- `rappiplus_catalog.csv` — product catalog: unit cost, category, supplier
+- `rappiplus_marketing_spend.csv` — marketing investment by country and channel
+- `events`, `users`, `user_activity` (PostgreSQL) — in-platform user behavior
+- `experiment_checkout_ui.csv` — results of an A/B test on the checkout UI
 
-| File | Description | Records |
-|------|-------------|---------|
-| `plans.csv` | Plan catalog: price, included minutes, GB, and overage costs | 2 rows |
-| `users_latam.csv` | Customer info: age, city, registration date, plan, and churn | 4,000 rows |
-| `usage.csv` | Service usage detail: calls and messages per user | ~40,000 rows |
+## 🔎 Methodology
 
----
+The analysis follows six sequential stages, each building on the previous one:
 
-## 🧩 Analysis Stages
+1. **Data Quality (Python)** — Diagnosed and cleaned three datasets using a reusable set of validation functions: null and duplicate handling, invalid-numeric checks, date parsing, categorical standardization, and IQR-based outlier detection.
+2. **Profitability (Python)** — Joined orders, catalog, and marketing data to calculate revenue, cost, profit, margin, and sales-behavior KPIs by product, country, and channel.
+3. **Conversion Funnel (SQL)** — Built a multi-stage funnel using CTEs over PostgreSQL to identify exactly where users drop off between first visit and purchase.
+4. **Cohort Retention (SQL)** — Modeled weekly retention (weeks 1–3) across 22 weekly cohorts using date-based grouping and cohort aggregation logic.
+5. **A/B Testing (Python)** — Ran a two-proportion Z-test (`statsmodels`) to evaluate whether a checkout UI redesign improved conversion.
+6. **Dashboard (Power BI)** — Designed a two-tier executive/drill-through dashboard applying SCQA storytelling, visual hierarchy, and a professional color system.
 
-### 1. Load & Explore
-- Loaded all three datasets using `pd.read_csv()`
-- Reviewed shape, column types, and initial structure with `.info()` and `.head()`
+## 📊 Key Findings
 
-### 2. Data Quality Assessment
-- **Null values:** Identified missing data per column and calculated proportions
-- **Invalid values / sentinels:** Detected `-999` in `age`, `?` in `city`, and structural zeros in `duration` / `length`
-- **Date validation:** Detected and flagged impossible future dates (year 2026) in `reg_date`
+**1. The business is profitable overall, but one segment is bleeding money.**
+Revenue reached $51.8M with a net profit of +$5.89M (11.35% margin). Argentina / Paid Search was the strongest segment (+$3.57M), while Mexico / Paid Search operated at a loss (-$521K) — a clear signal for a channel-level cost and pricing audit.
 
-### 3. Data Cleaning
-- Replaced sentinel `-999`, `0`, and `-1` in `age` with the column median
-- Replaced `?` in `city` with `pd.NA`
-- Marked year-2026 registration dates as `NaT`
-- Confirmed `duration` and `length` nulls as **Missing At Random (MAR)** — kept intentionally, as each field only applies to its event type (`call` or `text`)
-- Dropped 50 rows with missing `date` in `usage` (0.12%) to preserve temporal integrity
+**2. Checkout is the single biggest leak in the funnel.**
+Of 7,796 users who visited the platform, 80.04% converted to a purchase — a healthy overall rate. But the transition from `begin_checkout` to `add_payment_info` alone accounted for a 13.29% drop (958 users), more than double any other step, pointing to the payment form as the top UX priority.
 
-### 4. Usage Aggregation per User
-- Built a user-level summary table from `usage` with:
-  - `cant_mensajes` — total messages sent
-  - `cant_llamadas` — total calls made
-  - `cant_minutos_llamada` — total call minutes
-- Merged with `users` into a unified `user_profile` dataframe
+**3. Retention decays steadily, with one identifiable outlier cohort.**
+Across 22 weekly cohorts (Jan–Jun 2025), average retention fell from ~86% in week 1 to ~64% in week 3. The week-18 cohort (late April) underperformed the best cohort (week 6) by nearly 10 percentage points in weeks 2–3, worth investigating for acquisition-source or seasonality effects.
 
-### 5. Distribution Analysis & Outlier Detection
-- Plotted histograms for `age`, `cant_mensajes`, `cant_llamadas`, and `cant_minutos_llamada` segmented by plan
-- Used boxplots and the **IQR method** to identify and evaluate outliers
-- Key finding: a cluster of Premium users consuming 100–160 minutes/month, disconnected from the rest of the base
+**4. The tested checkout redesign did not move the needle.**
+Conversion was 15.69% (control) vs. 16.29% (treatment) — a difference statistically indistinguishable from chance (z = -0.81, p = 0.4161, α = 0.05). Recommendation: do not ship this change; test a different design hypothesis instead.
 
-### 6. Customer Segmentation
-- **By usage level** (`grupo_uso`):
-  - `Bajo consumo`: < 5 calls and < 5 messages
-  - `Uso medio`: < 10 calls and < 10 messages
-  - `Alto uso`: ≥ 10 in either metric
-- **By age group** (`grupo_edad`):
-  - `Joven`: < 30 years
-  - `Adulto`: 30–59 years
-  - `Adulto mayor`: ≥ 60 years
+## 📈 Dashboard
 
-### 7. Executive Insights
-- Synthesized findings into business-ready conclusions covering segment value, churn risk, outlier implications, and plan redesign recommendations
+The Power BI dashboard translates these findings into two views:
+- **Executive Overview** — revenue, profit, marketing spend, and ticket-size KPIs, with monthly and YTD trends.
+- **Detail / Drill-Through** — an order-level table with conditional formatting and product drill-through, for stakeholders who want to go from KPI to individual order.
 
----
+*(Add your dashboard screenshots here once you've followed the upload guide — a visual preview is what makes a recruiter stop scrolling.)*
 
-## ▶️ How to Run
+## 🛠️ Skills Applied
 
-### Option A — Google Colab (recommended)
+- **Python & Data Wrangling** — pandas, reusable data-quality functions, null/duplicate handling, IQR outlier detection, reproducible random imputation (fixed seed)
+- **SQL** — CTEs, date truncation, cohort logic, querying PostgreSQL via SQLAlchemy
+- **Statistics** — hypothesis testing, two-proportion Z-test, p-value interpretation, statistical vs. practical significance
+- **BI & Data Storytelling** — Power BI (DAX, drill-through, conditional formatting, date tables), the SCQA framework, dashboard information hierarchy
+- **Business Analysis** — KPI design, segment-level profitability analysis, translating findings into stakeholder-ready recommendations
 
-1. Download the notebook: `File → Download → Download .ipynb`
-2. Go to [colab.research.google.com](https://colab.research.google.com)
-3. Click `File → Upload notebook` and select the `.ipynb` file
-4. Upload the three CSV files to the Colab session storage or mount your Google Drive
-5. Update the file paths in the loading cells to match your environment
-6. Run all cells: `Runtime → Run all`
+## 🧰 Tech Stack
 
-### Option B — Local Environment
+Python (pandas, numpy, matplotlib, statsmodels) · SQL (PostgreSQL, SQLAlchemy) · Power BI
 
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/CRojas-2/CRojas-2/blob/main/S7_Version_Estudiante_Project_ConnectaTel.ipynb
-   cd telecom-data-analysis-python-eda-segmentation
-   ```
-2. Install dependencies:
-   ```bash
-   pip install pandas matplotlib seaborn numpy
-   ```
-3. Place the CSV files inside a `/datasets` folder at the root of the project
-4. Open the notebook:
-   ```bash
-   jupyter notebook S7_Version-Estudiante-Project-ConnectaTel.ipynb
-   ```
-5. Run all cells in order
+## 📁 Repository Structure
 
----
+```
+├── notebook/
+│   └── RappiPlus_Analysis.ipynb        # Full analysis: Steps 1–5 (Python + SQL)
+├── dashboard/
+│   ├── Dashboard_RappiPlus.pbix        # Power BI file (Step 6)
+│   └── screenshots/                    # Dashboard preview images
+└── README.md
+```
 
-## 🔁 Reproduction Guide
+## ▶️ How to Reproduce This Analysis
 
-To fully reproduce this analysis:
+1. Clone the repository.
+2. Install dependencies: `pip install pandas numpy matplotlib statsmodels sqlalchemy psycopg2-binary`
+3. Steps 1, 2, and 5 run directly against the provided CSVs from within the notebook.
+4. Steps 3 and 4 require a PostgreSQL connection with the `events`, `users`, and `user_activity` tables — update the connection string in the notebook's setup cell with your own credentials.
+5. Open `Dashboard_RappiPlus.pbix` in Power BI Desktop to explore Step 6 interactively.
 
-1. Ensure the three dataset files are available at the paths referenced in the notebook (`/datasets/plans.csv`, `/datasets/users_latam.csv`, `/datasets/usage.csv`)
-2. Run cells **sequentially from top to bottom** — each step depends on the output of the previous one
-3. No external APIs or credentials are required
-4. All visualizations are generated inline using `matplotlib` and `seaborn`
-5. The final `user_profile` dataframe (used for segmentation and insights) is built progressively through steps 1–4 — do not skip any cleaning step
+> Note: the raw CSVs used in Steps 1–2 are course-provided sample data and aren't included in this repository by default. Add them under a `data/` folder if you have the right to redistribute them, or point the notebook to your own copies.
 
----
+## 📬 Contact
 
-## 🛠️ Tech Stack
-
-`Python` · `Pandas` · `NumPy` · `Matplotlib` · `Seaborn` · `Jupyter Notebook`
-
----
-
-## 👤 Author
-
-Data analysis project developed by Camilo Rojas.
-
-Feel free to reach out or connect on [LinkedIn](https://www.linkedin.com/in/camilo-andres-rojas-rojas)
+**[Your Name]** — [LinkedIn](https://linkedin.com/in/your-profile) — [your.email@example.com](mailto:your.email@example.com)
