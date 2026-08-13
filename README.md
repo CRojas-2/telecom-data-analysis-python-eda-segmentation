@@ -53,7 +53,7 @@ The Power BI dashboard translates these findings into two views:
 - **Executive Overview** — revenue, profit, marketing spend, and ticket-size KPIs, with monthly and YTD trends.
 - **Detail / Drill-Through** — an order-level table with conditional formatting and product drill-through, for stakeholders who want to go from KPI to individual order.
 
-![Executive Overview](dashboard/screenshots/RappiPlus-Analysis-Detail.jpg)
+![Executive Overview](dashboard/screenshots/RappiPlus-Analysis-Overview.jpg)
 ![Detail](dashboard/screenshots/RappiPlus-Analysis-Detail.jpg)
 ![Drill-through](dashboard/screenshots/RappiPlus-Analysis-Product_Detail.jpg)
 
@@ -88,8 +88,7 @@ Python (pandas, numpy, matplotlib, statsmodels) · SQL (PostgreSQL, SQLAlchemy) 
 4. Steps 3 and 4 require a PostgreSQL connection with the `events`, `users`, and `user_activity` tables — update the connection string in the notebook's setup cell with your own credentials.
 5. Open `Dashboard_RappiPlus.pbix` in Power BI Desktop to explore Step 6 interactively.
 
-> Note: the raw CSVs used in Steps 1–2 are course-provided sample data and aren't included in this repository by default. Add them under a `data/` folder if you have the right to redistribute them, or point the notebook to your own copies.
 
 ## 📬 Contact
 
-**[Your Name]** — [LinkedIn](https://linkedin.com/in/your-profile) — [your.email@example.com](mailto:your.email@example.com)
+**[Camilo Rojas]** — [LinkedIn](https://linkedin.com/in/camilo-andres-rojas-rojas) — [camilo35546@gmail.com](mailto:camilo35546@gmail.com)
