@@ -53,7 +53,9 @@ The Power BI dashboard translates these findings into two views:
 - **Executive Overview** — revenue, profit, marketing spend, and ticket-size KPIs, with monthly and YTD trends.
 - **Detail / Drill-Through** — an order-level table with conditional formatting and product drill-through, for stakeholders who want to go from KPI to individual order.
 
-*(Add your dashboard screenshots here once you've followed the upload guide — a visual preview is what makes a recruiter stop scrolling.)*
+![Executive Overview](dashboard/screenshots/RappiPlus-Analysis-Detail.jpg)
+![Detail](dashboard/screenshots/RappiPlus-Analysis-Detail.jpg)
+![Drill-through](dashboard/screenshots/RappiPlus-Analysis-Product_Detail.jpg)
 
 ## 🛠️ Skills Applied
 
